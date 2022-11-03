@@ -29,7 +29,7 @@ def health():
 
 @app.get("/")
 def root():
-    return RedirectResponse(url='/docs')
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"Response": "Please navigate to /docs for more information"})
 
 def post_summary_results(term, results):
     return requests.post(
@@ -48,7 +48,7 @@ def return_summary_result(search_term: Search):
         if result['Status'] in ['Error', 'NotFound']:
             return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=result)
         else:
-            post_summary_results(search_term.term, result['Response'])
+            #post_summary_results(search_term.term, result['Response'])
             return JSONResponse(status_code=status.HTTP_200_OK, content=result)
     except Exception as e:
         print(e)
