@@ -14,7 +14,7 @@ from src.wiki import WikiSummarySearch
 
 app = FastAPI(
     title="Wikipedia Search Service",
-    description="API that searches wikipedia based on search term",
+    description="API that searches wikipedia based on search term for re:invent 2022",
     version="1.0.0",
 )
 
