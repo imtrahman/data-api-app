@@ -14,7 +14,7 @@ from src.wiki import WikiSummarySearch
 
 app = FastAPI(
     title="Wikipedia Search Service",
-    description="API that searches wikipedia based on search term",
+    description="API that searches wikipedia based on search term for re:invent 2022",
     version="1.0.0",
 )
 
@@ -32,29 +32,11 @@ def root():
     return JSONResponse(status_code=status.HTTP_200_OK, content={"Response": "Please navigate to /docs for more information"})
 
 def post_summary_results(term, results):
-    from boto3 import client
-    from datetime import datetime
-    timestamp = datetime.now().strftime("%H%M%S%d%m%Y")
-    try:
-        ddb = client('dynamodb')
-        ddb.put_item(
-            TableName=getenv('TableName'),
-            Item={
-                "TimeStamp": {
-                    "N": timestamp
-                },
-                "SearchTerm": {
-                    "S": term
-                },
-                "SearchResults": {
-                    "S": results
-                }
-            }
-        )
-        return "Successfully put item in database"
-    except Exception as e:
-        print(e)
-        return "Error: Unable to put item in database"
+    return requests.post(
+        url=f"http://{getenv('SUMMARY_API_URL')}/summary",
+        data=json.dumps({'term': term, 'results': results}),
+        headers={'Content-Type': 'application/json'}
+    )
 
 @app.post("/summary")
 def return_summary_result(search_term: Search):
@@ -66,8 +48,7 @@ def return_summary_result(search_term: Search):
         if result['Status'] in ['Error', 'NotFound']:
             return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content=result)
         else:
-            response = post_summary_results(search_term.term, result['Response'])
-            print(response)
+            #post_summary_results(search_term.term, result['Response'])
             return JSONResponse(status_code=status.HTTP_200_OK, content=result)
     except Exception as e:
         print(e)
